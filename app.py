@@ -1,10 +1,11 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, g
 from dotenv import load_dotenv
 import os
 import jwt
 import bcrypt
 import psycopg2, psycopg2.extras
 from jwt.exceptions import DecodeError, ExpiredSignatureError
+from auth_middleware import token_required
 
 load_dotenv()
 
@@ -114,6 +115,11 @@ def verify_token():
         return jsonify({"error": "Token has expired"}), 400
     except Exception as error:
         return jsonify({"error": str(error)}), 500 
+    
+@app.route('/vip-lounge')
+@token_required
+def vip_lounge():
+    return f"Welcome to the part, {g.user['username']}"
 
 if __name__ == "__main__":
     app.run()
